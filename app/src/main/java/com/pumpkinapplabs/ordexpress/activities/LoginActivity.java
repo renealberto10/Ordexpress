@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -20,17 +24,31 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.pumpkinapplabs.ordexpress.MainActivity;
 import com.pumpkinapplabs.ordexpress.R;
+import com.pumpkinapplabs.ordexpress.data.model.LoginPost;
+import com.pumpkinapplabs.ordexpress.data.remote.RetrofitAPI;
+import com.pumpkinapplabs.ordexpress.data.remote.ServicesAPI;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
-TextView txtregister, txtforgetpass;
-Button btnlogin;
-ProgressDialog progress;
-
+    TextView txtregister, txtforgetpass;
+    Button btnlogin;
+    ProgressDialog progress;
+    private SharedPreferences preferencias;
+    private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
+    private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+    private Matcher matcher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
     DesignUI();
+    preferencias = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
     txtregister.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -46,6 +64,7 @@ ProgressDialog progress;
     btnlogin.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            hideKeyboard();
             progress = new ProgressDialog(LoginActivity.this);
             progress.setTitle("Validando credenciales");
             progress.setMessage("Espere, procesando informacion...");
@@ -94,6 +113,24 @@ ProgressDialog progress;
         startActivity(p);
         this.finish();
     }
+    //Validate to email is correct
+    public boolean validateEmail(String email) {
+        matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+    //Validate to password is correct
+    public boolean validatePassword(String password) {
+        return password.length() > 5;
+    }
+    //Hide Keyboard
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).
+                    hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
     //Method to validate user and password
     private void login()
     {
@@ -101,25 +138,77 @@ ProgressDialog progress;
         TextInputLayout passwordtxt = findViewById(R.id.txtpassword);
         String stremail = emailtxt.getEditText().getText().toString().trim();
         String strpassword = passwordtxt.getEditText().getText().toString().trim();
+        validateEmail(stremail);
+        validatePassword(strpassword);
 
-        if(TextUtils.isEmpty(stremail)){
-            String msj = "Debe de digitar su correo electronico";
+        if(!validateEmail(stremail)){
+            String msj = "Direccion de correo no valida.";
             message(msj);
             progress.dismiss();
 
-        }else if(TextUtils.isEmpty(strpassword)){
-            String msj = "Debe de digitar su contraseña";
+        }else if(!validatePassword(strpassword)){
+            String msj = "Contraseña incorrecta.";
             message(msj);
             progress.dismiss();
         }
         else {
-            Intent i = new Intent(this, MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-            progress.dismiss();
-            this.finish();
 
+         sendPost(stremail,strpassword);
         }
+
+    }
+
+    //Metodo donde se envia los parametros para ejecutar el post a auth/login
+
+    public void sendPost(String stremail, String strpassword) {
+
+        ServicesAPI servicesAPI = RetrofitAPI.getClient();
+        servicesAPI.savePost(stremail,strpassword).enqueue(new Callback<LoginPost>() {
+
+            @Override
+            public void onResponse(Call<LoginPost> call, Response<LoginPost> response) {
+
+                if(response.isSuccessful()) {
+                    if(response.body() !=null){
+                        Log.i("Conexion exitosa", response.body().toString());
+                        LoginPost jsonresponse = response.body();
+                        Log.d("",response.body().toString());
+                        loginUser(jsonresponse);
+                    }
+                    else{
+                        Log.i("Conexion fallo", "Body() null");
+
+                    }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<LoginPost> call, Throwable t) {
+                progress.dismiss();
+                String msj = "Usuario o Contraseña incorrecto";
+                message(msj);
+                //Toast.makeText(LoginActivity.this, "Usuario o Contraseña incorrecto", Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+    }
+
+    public void loginUser(LoginPost response){
+        saveLoginUser(response);
+        Intent i = new Intent(this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+        progress.dismiss();
+        this.finish();
+    }
+
+    public void saveLoginUser(LoginPost response){
+        SharedPreferences.Editor saveinfo = preferencias.edit();
+        saveinfo.putInt("user_id", response.getUserid());
+        saveinfo.putString("token", response.getToken());
+        saveinfo.putInt("rol", response.getRol());
+        saveinfo.apply();
 
     }
 }
