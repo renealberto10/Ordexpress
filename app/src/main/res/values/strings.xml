@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Ordexpress</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Explorer</string>
+    <string name="title_dashboard">Cart</string>
+    <string name="title_notifications">Profile</string>
 </resources>
