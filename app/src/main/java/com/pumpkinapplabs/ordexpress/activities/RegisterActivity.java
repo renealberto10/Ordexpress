@@ -17,7 +17,6 @@ import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
 import com.google.android.material.textfield.TextInputLayout;
-import com.pumpkinapplabs.ordexpress.MainActivity;
 import com.pumpkinapplabs.ordexpress.R;
 import com.pumpkinapplabs.ordexpress.data.SQLiteHelper.RegisterSQLIte;
 
