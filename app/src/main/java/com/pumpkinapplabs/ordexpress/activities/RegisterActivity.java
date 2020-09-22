@@ -105,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
         validatePassword(strpassword);
 
         if(!validateName(strname)){
-            String msj = "Nombre no puede estar vacio y debe ser mayor de 1 caracter.";
+            String msj = "Nombre no puede estar vacio.";
             message(msj);
         }else if(!validateEmail(stremail)){
             String msj = "Direccion de correo no valida.";
