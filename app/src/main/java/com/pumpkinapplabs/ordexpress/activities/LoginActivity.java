@@ -144,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
             progress.dismiss();
 
         }else if(!validatePassword(strpassword)){
-            String msj = "Contraseña incorrecta.";
+            String msj = "Contraseña debe ser mayor de 5 caracteres.";
             message(msj);
             progress.dismiss();
         }

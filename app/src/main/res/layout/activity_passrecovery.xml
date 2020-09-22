@@ -35,7 +35,7 @@
         app:layout_constraintTop_toBottomOf="@+id/txtverificacion" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/txtemailrecovery"
+        android:id="@+id/txtemailregister"
         android:layout_width="343dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
@@ -67,7 +67,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtemailrecovery"
+        app:layout_constraintTop_toBottomOf="@+id/txtemailregister"
         app:layout_constraintVertical_bias="0.233" />
 
 
