@@ -5,22 +5,20 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <LinearLayout
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/circule_categories"
-        android:paddingBottom="5dp"
+        android:layout_width="60dp"
+        android:layout_height="90dp"
         android:orientation="vertical">
         <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_width="60dp"
+            android:layout_height="70dp">
 
             <ImageView
                 android:id="@+id/image"
+                android:background="@drawable/circule_categories"
                 android:layout_width="wrap_content"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:src="@drawable/ic_icon_gaming"/>
@@ -30,10 +28,11 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
             android:fontFamily="@font/sf_pro_regular"
-            android:text="Hogar"
+            android:text="Juegos"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="15sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
 </LinearLayout>
