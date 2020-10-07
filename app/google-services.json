@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "380414388654",
+    "firebase_url": "https://ordexpress-1602029704361.firebaseio.com",
+    "project_id": "ordexpress-1602029704361",
+    "storage_bucket": "ordexpress-1602029704361.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380414388654:android:1f78a4f0931d535026803f",
+        "android_client_info": {
+          "package_name": "com.pumpkinapplabs.ordexpress"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "380414388654-kpg1bktpu4ev84h8u3oq3lireq0osl3c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pumpkinapplabs.ordexpress",
+            "certificate_hash": "cd7bf2dbe1826957a02a99437aa1c7bea634ffac"
+          }
+        },
+        {
+          "client_id": "380414388654-5k6pt5qmkbv20rulacvv0agedbsc90gu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLLPd6CVuHxTIElqeTqKPJNvY-dovq1_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "380414388654-5k6pt5qmkbv20rulacvv0agedbsc90gu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
