@@ -1,5 +1,6 @@
 package com.pumpkinapplabs.ordexpress.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -18,7 +19,23 @@ import android.widget.TextView;
 import com.github.johnpersano.supertoasts.library.Style;
 import com.github.johnpersano.supertoasts.library.SuperActivityToast;
 import com.github.johnpersano.supertoasts.library.utils.PaletteUtils;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.pumpkinapplabs.ordexpress.R;
 import com.pumpkinapplabs.ordexpress.data.model.LoginPost;
 import com.pumpkinapplabs.ordexpress.data.remote.RetrofitAPI;
@@ -31,19 +48,31 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
     TextView txtregister, txtforgetpass;
     Button btnlogin;
+    SignInButton btngoogle;
+
+    GoogleSignInClient mGoogleSignInClient;
+    private static final String TAG = "SignInActivity";
+    private  static final int RC_SIGN_IN = 9001;
+
     ProgressDialog progress;
     private SharedPreferences preferencias;
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private Matcher matcher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-    DesignUI();
+        DesignUI();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     preferencias = getSharedPreferences("preferencias", Context.MODE_PRIVATE);
     txtregister.setOnClickListener(new View.OnClickListener() {
         @Override
@@ -57,19 +86,60 @@ public class LoginActivity extends AppCompatActivity {
             recoverypass();
         }
     });
-    btnlogin.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            hideKeyboard();
-            progress = new ProgressDialog(LoginActivity.this);
-            progress.setTitle("Validando credenciales");
-            progress.setMessage("Espere, procesando informacion...");
-            progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progress.show();
-            login();
-        }
-    });
+    btnlogin.setOnClickListener(this);
+    btngoogle.setOnClickListener(this);
+
     }
+    //Method to click buttom
+    @Override
+    public void onClick(View v){
+        switch (v.getId()){
+            case R.id.buttonlogin:
+                hideKeyboard();
+                progress = new ProgressDialog(LoginActivity.this);
+                progress.setTitle("Validando credenciales");
+                progress.setMessage("Espere, procesando informacion...");
+                progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progress.show();
+                login();
+                break;
+            case R.id.googlesign:
+                signIn();
+                break;
+        }
+    }
+
+    //Method Sign with Google
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                Log.d(TAG, "firebaseAuthWithGoogle:" + account.getId());
+                Intent i = new Intent(this, MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                this.finish();
+
+
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w(TAG, "Google sign in failed", e);
+                // ...
+            }
+        }
+    }
+
     //Method super Toast
     @SuppressLint("WrongConstant")
     public void message (String messages){
@@ -92,7 +162,11 @@ public class LoginActivity extends AppCompatActivity {
         txtforgetpass = findViewById(R.id.txtforgetpass);
         txtregister = findViewById(R.id.txtregisterform);
         btnlogin = findViewById(R.id.buttonlogin);
+        btngoogle = findViewById(R.id.googlesign);
+        TextView textView = (TextView) btngoogle.getChildAt(0);
+        textView.setText("Ingresar con Google");
     }
+
 //Redirect to register form
     private void  registerform()
     {
@@ -205,6 +279,12 @@ public class LoginActivity extends AppCompatActivity {
         saveinfo.putString("token", response.getToken());
         saveinfo.putInt("rol", response.getRol());
         saveinfo.apply();
+
+    }
+
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 }
