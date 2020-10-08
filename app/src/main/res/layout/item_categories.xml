@@ -30,9 +30,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:fontFamily="@font/sf_pro_regular"
-            android:text="Juegos"
+            android:text="Videojuegos"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="12sp" />
+            android:textSize="8sp" />
     </LinearLayout>
 
 </LinearLayout>
